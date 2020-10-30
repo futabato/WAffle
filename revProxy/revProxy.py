@@ -12,9 +12,13 @@ class RegexConverter(BaseConverter):
 
 app.url_map.converters['regex'] = RegexConverter
 
+with open("blacklist.txt") as f:
+    bList = [s.strip() for s in f.readlines()]
+
 @app.route('/<regex(".*"):path>')
 def proxy(path):
-    if "<" in path:
+    print(path in bList)
+    if path in bList:
         print(path)
         return render_template('waffle.html')
     url = "http://localhost:80/"+path
