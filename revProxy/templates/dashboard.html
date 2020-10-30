@@ -4,26 +4,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
-    <style>
-        #through {
-            color: green;
-        }
-        
-        #block {
-            color: red;
-        }
-    </style>
 </head>
 
 <body>
-    WAffle's Dashboard<br>
+    <h1>WAffle's Dashboard</h1>
     <a href="log">log</a><br>
-    <p>
-        <span id="through">through: {{ through_len }}</span>
-    </p>
-    <p>
-        <span id="block">block  : {{ block_len }}</span>
-    </p>
+    <canvas id="myPieChart"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+
+    <script>
+        let through_len = {{ through_len }};
+        let block_len = {{ block_len }};
+        var ctx = document.getElementById("myPieChart");
+        var myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ["through", "block"],
+                datasets: [{
+                    backgroundColor: [
+                        "#98fb98",
+                        "#fa8072"
+                    ],
+                    data: [through_len, block_len]
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Requests'
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
