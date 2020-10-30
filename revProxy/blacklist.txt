@@ -1,15 +1,1 @@
-<script>
-<Script>
-<sCript>
-<scRipt>
-<scrIpt>
-<scriPt>
-<scripT>
-<SCRipt>
-<SCrIpt>
-<SCriPt>
-<SCripT>
-<SCRIpt>
-<SCRIPt>
-<SCRIpT>
-<SCRIPT>
+<script[\s]*>
