@@ -15,12 +15,12 @@ class RegexConverter(BaseConverter):
 app.url_map.converters['regex'] = RegexConverter
 
 with open("blacklist.txt") as f:
-    bList = [s.strip() for s in f.readlines()]
+    blacklist = [s.strip() for s in f.readlines()]
 
 @app.route('/<regex(".*"):path>')
 def proxy(path):
 
-    for val in bList:
+    for val in blacklist:
         m = re.match(val, path, re.IGNORECASE)
         if m != None :
             return render_template('waffle.html')    
