@@ -1,5 +1,5 @@
 import requests
-from flask import *
+from flask import Flask, Response, render_template
 from requests.api import request
 from werkzeug.routing import BaseConverter
 
