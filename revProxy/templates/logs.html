@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>logs</title>
+    <style>
+        #through {
+            float: left;
+        }
+        
+        #block {
+            float: left;
+        }
+    </style>
+</head>
+
+<body>
+    <ul id=through>
+        {% for i in through_req %}
+        <li>{{ i }}</li>
+        {% endfor %}
+    </ul>
+    <ul id=block>
+        {% for i in block_req %}
+        <li>{{ i }}</li>
+        {% endfor %}
+    </ul>
+</body>
+
+</html>
