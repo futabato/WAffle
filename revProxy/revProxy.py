@@ -27,6 +27,7 @@ f = open('log/through.txt', 'w')
 f.write('')
 f.close()
 
+url = "http://localhost:80/"
 
 @app.route('/<regex(".*"):path>', methods=["GET"])
 def get(path):
@@ -37,8 +38,7 @@ def get(path):
     if waf(path):
         return render_template('waffle.html')
     
-    url = "http://localhost:80/" + path
-    r = requests.get(url)
+    r = requests.get(url + path)
     return Response(r.content)
 
 @app.route('/<regex(".*"):path>', methods=["POST"])
@@ -47,7 +47,7 @@ def post(path):
     if waf(path, req.get_data().decode()):
         return render_template('waffle.html')
 
-    proc = subprocess.run(["curl", "http://localhost:80/"+path, "--data", req.get_data().decode()], stdout=subprocess.PIPE)
+    proc = subprocess.run(["curl", url+path, "--data", req.get_data().decode()], stdout=subprocess.PIPE)
     return Response(proc.stdout)
 
 def waf(path, *body):
