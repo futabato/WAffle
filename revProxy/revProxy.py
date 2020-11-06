@@ -27,7 +27,7 @@ f = open('log/through.txt', 'w')
 f.write('')
 f.close()
 
-url = "http://localhost:80/"
+url = "http://localhost:8080/"
 
 @app.route('/<regex(".*"):path>', methods=["GET"])
 def get(path):
