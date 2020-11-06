@@ -12,7 +12,7 @@ localhost:8080 に
 
 - [x] URL query XSS
 - [x] POST body XSS
-- [ ] XXE
+- [x] XXE
 - [ ] SQLi
 - [ ] Cookie
 - [ ] OS Command
