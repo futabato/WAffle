@@ -1,3 +1,4 @@
-FROM php:7.4-fpm
+FROM php:7-fpm
 
-COPY ./public/code /var/www/html
+RUN apt-get update \
+    && docker-php-ext-install pdo_mysql
