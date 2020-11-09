@@ -1,7 +1,6 @@
 import datetime
 import re
-from os import pipe
-from urllib.parse import urlparse
+import subprocess
 
 import requests
 from flask import Flask, Response, render_template
@@ -28,26 +27,41 @@ f = open('log/through.txt', 'w')
 f.write('')
 f.close()
 
-@app.route('/<regex(".*"):path>')
-def proxy(path):
+url = "http://localhost:8080/"
+
+@app.route('/<regex(".*"):path>', methods=["GET"])
+def get(path):
     query = req.query_string
     if query != b'' :
         path += "?" + query.decode()
 
-    print(path)
+    if waf(path):
+        return render_template('waffle.html')
+    
+    r = requests.get(url + path)
+    return Response(r.content)
 
+@app.route('/<regex(".*"):path>', methods=["POST"])
+def post(path):
+    
+    if waf(path, req.get_data().decode()):
+        return render_template('waffle.html')
+
+    proc = subprocess.run(["curl", url+path, "--data", req.get_data().decode()], stdout=subprocess.PIPE)
+    return Response(proc.stdout)
+
+def waf(path, *body):
     for val in blacklist:
         m = re.match(val, path, re.IGNORECASE)
+        if m == None and body != ():
+            m = re.match(val, str(body), re.IGNORECASE)
+            
         if m != None:
             with open('log/block.txt', mode='a') as f:
-                f.write("[" + str(datetime.datetime.now()) + "] " + path + '\n')
-            return render_template('waffle.html')
-
+                f.write("[" + str(datetime.datetime.now()) + "] " + path + " " + str(body) +"\n")
+            return True
     with open('log/through.txt', mode='a') as f:
-        f.write("[" + str(datetime.datetime.now()) + "] " + path + '\n')
-    url = "http://localhost:80/" + path
-
-    r = requests.get(url)
-    return Response(r.content)
+        f.write("[" + str(datetime.datetime.now()) + "] " + path + " " + str(body) + "\n")
+    return False
 
 app.run()

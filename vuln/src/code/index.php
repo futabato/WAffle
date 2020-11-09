@@ -17,6 +17,9 @@
         <li>
             <a href="./uploadXml.php">XXE</a>
         </li>
+        <li>
+            <a href="./search.php">SQLi</a>
+        </li>
     </ul>
 </body>
 
