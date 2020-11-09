@@ -15,7 +15,7 @@ localhost:8080 に脆弱なあれこれが出現する
 - [x] XXE
 - [x] SQLi
 - [ ] Cookie
-- [ ] OS Command
+- [x] OS Command
 - [ ] CSRF
-- [ ] Pass Travarsal
+- [x] Pass Travarsal
 - [ ] RFI
