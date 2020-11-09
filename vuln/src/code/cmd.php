@@ -9,19 +9,19 @@
 <body>
     <ul>
         <li>
-            <a href="?msg=hello">hello</a>
+            <a href="?input=hello">hello</a>
         </li>
         <li>
-            <a href="?msg=bye-bye">bye</a>
+            <a href="?input=bye-bye">bye</a>
         </li>
         <li>
-            <a href="?msg=;ls">ls</a>
+            <a href="?input=;ls">ls</a>
         </li>
     </ul>
     <hr>
     <?php
-    if (isset($_GET['msg'])) {
-        exec("echo " . $_GET['msg'], $output);
+    if (isset($_GET['input'])) {
+        exec("echo " . $_GET['input'], $output);
         echo "<pre>";
         print_r($output);
         echo "</pre>";

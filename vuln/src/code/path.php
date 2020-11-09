@@ -9,16 +9,16 @@
 <body>
     <ul>
         <li>
-            <a href="?file=index.php">index</a>
+            <a href="?input=index.php">index</a>
         </li>
         <li>
-            <a href="?file=php://filter/convert.base64-encode/resource=index.php">base64(index)</a>
+            <a href="?input=php://filter/convert.base64-encode/resource=index.php">base64(index)</a>
         </li>
     </ul>
     <hr>
     <?php
-    if (isset($_GET['file'])) {
-        $file = $_GET['file'];
+    if (isset($_GET['input'])) {
+        $file = $_GET['input'];
         include($file);
     }
     ?>
