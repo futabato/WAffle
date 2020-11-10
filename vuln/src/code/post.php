@@ -7,11 +7,15 @@
 </head>
 
 <body>
-    <form action="receive.php" method="post">
-        <input type="text" name="input" size="50"><br>
-        <input type="text" name="input2" size="50"><br>
-        <input type="submit" value="送信">
+    <form method="post">
+        <input type="text" name="input" size="50" id="input"><br>
+        <input type="button" onclick="document.getElementById('input').value = '<script>alert(1)</script>';" value="attack"><input type="submit" value="送信">
     </form>
+    <hr>
+    output: <?php
+            $input = $_POST["input"];
+            print $input;
+            ?>
 </body>
 
 </html>
