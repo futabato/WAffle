@@ -5,9 +5,15 @@
     <meta charset="UTF-8">
     <title>logs</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
         ul {
-            padding: 50px;
-            width: 700px;
+            margin: 0;
+            padding: 1%;
+            width: 48%;
             word-wrap: break-word;
         }
         
@@ -24,13 +30,13 @@
 </head>
 
 <body>
-    <ul id=through>
+    <ul id="through">
         <p>through log</p>
         <hr> {% for i in through_req %}
         <li>{{ i }}</li>
         {% endfor %}
     </ul>
-    <ul id=block>
+    <ul id="block">
         <p>block log</p>
         <hr> {% for i in block_req %}
         <li>{{ i }}</li>
