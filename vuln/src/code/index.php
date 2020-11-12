@@ -26,9 +26,6 @@
         <li>
             <a href="./cmd.php">os command</a>
         </li>
-        <li>
-            <a href="./rfi.php">RFI</a>
-        </li>
     </ul>
 </body>
 
