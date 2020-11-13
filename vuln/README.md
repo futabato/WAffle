@@ -3,7 +3,7 @@
 ## デプロイ
 
 ```txt
-sudo docker-compose up --build
+docker-compose up --build
 ```
 
 localhost:8080 に脆弱なあれこれが出現する
@@ -18,4 +18,4 @@ localhost:8080 に脆弱なあれこれが出現する
 - [x] OS Command
 - [ ] CSRF
 - [x] Pass Travarsal
-- [ ] RFI
+- [x] RFI
