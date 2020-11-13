@@ -46,8 +46,8 @@ def post(path):
     
     if waf(path, req.get_data().decode()):
         return render_template('waffle.html')
-
-    proc = subprocess.run(["curl", url+path, "--data", req.get_data().decode()], stdout=subprocess.PIPE)
+    print()
+    proc = subprocess.run(["curl", url+path,"-H","Content-Type:" + req.headers.getlist("Content-Type")[0] + "", "--data", req.get_data().decode()], stdout=subprocess.PIPE)
     return Response(proc.stdout)
 
 def waf(path, *body):
