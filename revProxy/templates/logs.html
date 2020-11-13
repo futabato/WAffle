@@ -10,11 +10,12 @@
             padding: 0;
         }
         
-        ul {
+        dl {
             margin: 0;
             padding: 1%;
             width: 48%;
-            word-wrap: break-word;
+            overflow-x: scroll;
+            white-space: nowrap;
         }
         
         #through {
@@ -30,18 +31,18 @@
 </head>
 
 <body>
-    <ul id="through">
+    <dl id="through">
         <p>through log</p>
         <hr> {% for i in through_req %}
-        <li>{{ i }}</li>
+        <dd>{{ i }}</dd>
         {% endfor %}
-    </ul>
-    <ul id="block">
+    </dl>
+    <dl id="block">
         <p>block log</p>
         <hr> {% for i in block_req %}
-        <li>{{ i }}</li>
+        <dd>{{ i }}</dd>
         {% endfor %}
-    </ul>
+    </dl>
 </body>
 
 </html>
