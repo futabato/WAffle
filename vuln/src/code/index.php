@@ -26,6 +26,9 @@
         <li>
             <a href="./cmd.php">os command</a>
         </li>
+        <li>
+            <a href="./mail.php">mail header injection</a>
+        </li>
     </ul>
 </body>
 

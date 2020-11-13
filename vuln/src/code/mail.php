@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <a href="http://localhost:1080">mail確認</a>
     <a href="https://qiita.com/togana/items/16199cdee24e65802c7b">参考</a>
     <hr>
-    curl -i -s -k -X $'POST' --data-binary $'from=example-from%40example.com%0d%0aCc:%20example-cc%40example.com&to=example-to%40example.com&subject=%E3%82%BF%E3%82%A4%E3%83%88%E3%83%AB&message=%E3%83%86%E3%82%B9%E3%83%88%E6%9C%AC%E6%96%87' $'http://localhost:8080/mail.php'
+    curl -i -s -k -X $'POST' --data-binary $'from=example-from%40example.com%0d%0aCc:%20example-cc%40example.com&to=example-to%40example.com&subject=%E3%82%BF%E3%82%A4%E3%83%88%E3%83%AB&message=%E3%83%86%E3%82%B9%E3%83%88%E6%9C%AC%E6%96%87' $'http://localhost:5000/mail.php'
 </body>
 
 </html>
