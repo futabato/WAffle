@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <head>
     <meta charset="UFT-8">
-    <title>メールヘッダーインジェクションのサンプル</title>
+    <title>mail header injection</title>
 </head>
 
 <body>

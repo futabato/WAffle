@@ -14,7 +14,7 @@ try {
 
 <head>
     <meta charset="UTF-8">
-    <title>post</title>
+    <title>sqli</title>
 </head>
 
 <body>
