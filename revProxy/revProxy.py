@@ -29,25 +29,20 @@ f.close()
 
 url = "http://localhost:8080/"
 
-@app.route('/<regex(".*"):path>', methods=["GET"])
-def get(path):
+@app.route('/<regex(".*"):path>', methods=["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"])
+def post(path):
     query = req.query_string
     if query != b'' :
         path += "?" + query.decode()
 
-    if waf(path):
-        return render_template('waffle.html')
-    
-    r = requests.get(url + path)
-    return Response(r.content)
-
-@app.route('/<regex(".*"):path>', methods=["POST"])
-def post(path):
-    
     if waf(path, req.get_data().decode()):
         return render_template('waffle.html')
 
-    proc = subprocess.run(["curl", url+path,"-H","Content-Type:" + req.headers.getlist("Content-Type")[0] + "", "--data", req.get_data().decode()], stdout=subprocess.PIPE)
+    try :
+        proc = subprocess.run(["curl", "-X", req.method, url+path,"-H","Content-Type:" + req.headers.getlist("Content-Type")[0] , "--data", req.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except:
+        proc = subprocess.run(["curl", "-X", req.method, url+path, "--data", req.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
     return Response(proc.stdout)
 
 def waf(path, *body):
