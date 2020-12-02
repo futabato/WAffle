@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>post</title>
+    <title>get</title>
 </head>
 
 <body>

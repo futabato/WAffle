@@ -19,3 +19,4 @@ localhost:8080 に脆弱なあれこれが出現する
 - [ ] CSRF
 - [x] Pass Travarsal
 - [x] RFI
+- [x] Mail Header Injection
