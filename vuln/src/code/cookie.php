@@ -1,16 +1,24 @@
 <?php
-$cookie_name = "Seceret";
-$cookie_value = "Datrac";
-setcookie($cookie_name, $cookie_value, time() + (86400 *30), "/");
+$cookie_name = "hoge";
+$cookie_value = "huga";
+setcookie($cookie_name, $cookie_value);
 ?>
-<html>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>cookie</title>
+</head>
+
 <body>
 
 <?php
 if(!isset($_COOKIE[$cookie_name])) {
 } else {
-	echo "Cookie '".$cookie_name."'is set!<br>";
-	echo "Value is; ".$_COOKIE[$cookie_name];
+	echo "Cookie name '".$cookie_name."'<br>";
+	echo "value: ".$_COOKIE[$cookie_name];
 }
 ?>
 
