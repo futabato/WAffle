@@ -26,6 +26,9 @@
         <li>
             <a href="./cmd.php">os command</a>
         </li>
+	<li>
+	    <a href="./cookie.php">cookie</a>
+	</li>
     </ul>
 </body>
 
