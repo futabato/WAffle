@@ -1,8 +1,6 @@
 import re
 
-import requests
 from flask import Flask, render_template
-from requests.api import request
 
 app = Flask(__name__)
 

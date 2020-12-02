@@ -2,10 +2,7 @@ import datetime
 import re
 import subprocess
 
-import requests
-from flask import Flask, Response, render_template
-from flask import request as req
-from requests.api import request
+from flask import Flask, Response, render_template, request
 from werkzeug.routing import BaseConverter
 
 app = Flask(__name__)
@@ -29,25 +26,20 @@ f.close()
 
 url = "http://localhost:8080/"
 
-@app.route('/<regex(".*"):path>', methods=["GET"])
-def get(path):
-    query = req.query_string
+@app.route('/<regex(".*"):path>', methods=["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"])
+def post(path):
+    query = request.query_string
     if query != b'' :
         path += "?" + query.decode()
 
-    if waf(path):
-        return render_template('waffle.html')
-    
-    r = requests.get(url + path)
-    return Response(r.content)
-
-@app.route('/<regex(".*"):path>', methods=["POST"])
-def post(path):
-    
-    if waf(path, req.get_data().decode()):
+    if waf(path, request.get_data().decode()):
         return render_template('waffle.html')
 
-    proc = subprocess.run(["curl", url+path, "--data", req.get_data().decode()], stdout=subprocess.PIPE)
+    try :
+        proc = subprocess.run(["curl", "-X", request.method, url+path,"-H","Content-Type:" + request.headers.getlist("Content-Type")[0] , "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except:
+        proc = subprocess.run(["curl", "-X", request.method, url+path, "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
     return Response(proc.stdout)
 
 def waf(path, *body):
