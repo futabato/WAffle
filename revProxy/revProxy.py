@@ -1,4 +1,5 @@
 import datetime
+import json
 import re
 import subprocess
 
@@ -36,24 +37,24 @@ def post(path):
         return render_template('waffle.html')
 
     try :
-        proc = subprocess.run(["curl", "-X", request.method, url+path,"-H","Content-Type:" + request.headers.getlist("Content-Type")[0] , "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.run(["curl", "-X", request.method, "-A", request.user_agent.string, url+path,"-H","Content-Type:" + request.headers.getlist("Content-Type")[0] , "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except:
-        proc = subprocess.run(["curl", "-X", request.method, url+path, "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.run(["curl", "-X", request.method, "-A", request.user_agent.string, url+path, "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     return Response(proc.stdout)
 
-def waf(path, *body):
+def waf(path, body):
     for val in blacklist:
         m = re.match(val, path, re.IGNORECASE)
-        if m == None and body != ():
+        if m == None and body != "":
             m = re.match(val, str(body), re.IGNORECASE)
             
         if m != None:
             with open('log/block.txt', mode='a') as f:
-                f.write("[" + str(datetime.datetime.now()) + "] " + path + " " + str(body) +"\n")
+                f.write(str({"date": str(datetime.datetime.now()), "path": path, "body": body}) + "\n")
             return True
     with open('log/through.txt', mode='a') as f:
-        f.write("[" + str(datetime.datetime.now()) + "] " + path + " " + str(body) + "\n")
+        f.write(str({"date": str(datetime.datetime.now()), "path": path, "body": body}) + "\n")
     return False
 
 app.run()
