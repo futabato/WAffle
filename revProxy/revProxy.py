@@ -52,14 +52,17 @@ def post(path):
         proc = subprocess.run(["curl", "-X", request.method, "-i", "-A", request.user_agent.string, url+path, "-H", "Cookie: " + cookie, "-H", "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     # HTTPリクエストをヘッダとボディで分割
-    splited_res = proc.stdout.split("\n\n".encode("utf-8"),1)
-    res = make_response(splited_res[1])
+    splited_res = proc.stdout.split("\r\n\r\n".encode("utf-8"),1)
+    if len(splited_res) == 1:
+        res = make_response("")
+    else :
+        res = make_response(splited_res[1])
 
     # HTTPリクエストヘッダからcookieを探してセットする
     for v in splited_res[0].split("\r\n".encode("utf-8")):
         if v.startswith(b'Set-Cookie'):
             s = v.split(":".encode("utf-8"), 1)[1].split("=".encode("utf-8"), 1)
-            res.set_cookie(s[0], s[1])
+            res.set_cookie(s[0].decode("utf-8"), s[1].split(";".encode("utf-8"), 1)[0].decode('utf-8'))
 
     return res
 
