@@ -1,6 +1,6 @@
 <?php
 setcookie("hoge", "fuga");
-setcookie("fuga", "hoge");
+setcookie("fuga", 1);
 ?>
 
 <!DOCTYPE html>
