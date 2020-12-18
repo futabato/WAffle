@@ -1,7 +1,6 @@
 <?php
-$cookie_name = "hoge";
-$cookie_value = "huga";
-setcookie($cookie_name, $cookie_value);
+setcookie("hoge", "fuga");
+setcookie("fuga", "hoge");
 ?>
 
 <!DOCTYPE html>
@@ -13,14 +12,8 @@ setcookie($cookie_name, $cookie_value);
 </head>
 
 <body>
-
-<?php
-if(!isset($_COOKIE[$cookie_name])) {
-} else {
-	echo "Cookie name '".$cookie_name."'<br>";
-	echo "value: ".$_COOKIE[$cookie_name];
-}
-?>
-
+	hoge: <?php echo $_COOKIE["hoge"];?><br>
+	fuga: <?php echo $_COOKIE["fuga"];?><br>
 </body>
+
 </html>
