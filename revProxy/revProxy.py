@@ -3,7 +3,8 @@ import json
 import re
 import subprocess
 
-from flask import Flask, Response, render_template, request, make_response
+from flask import (Flask, Response, escape, make_response, render_template,
+                   request)
 from werkzeug.routing import BaseConverter
 
 app = Flask(__name__)
@@ -62,18 +63,22 @@ def post(path):
 
     return res
 
-def waf(path, body):
+def waf(path, body, cookie):
+    msg = ""
     for val in blacklist:
         m = re.match(val, path, re.IGNORECASE)
         if m == None and body != "":
             m = re.match(val, str(body), re.IGNORECASE)
+        if m == None and cookie != "":
+            m = re.match(val, str(cookie), re.IGNORECASE)
             
+        msg = str({"date": str(datetime.datetime.now()), "path": str(escape(path)), "body": str(escape(body)), "cookie": str(escape(cookie))}) + "\n"
         if m != None:
             with open('log/block.txt', mode='a') as f:
-                f.write(str({"date": str(datetime.datetime.now()), "path": path, "body": body}) + "\n")
+                f.write(msg)
             return True
     with open('log/through.txt', mode='a') as f:
-        f.write(str({"date": str(datetime.datetime.now()), "path": path, "body": body}) + "\n")
+        f.write(msg)
     return False
 
 app.run()
