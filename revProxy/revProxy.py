@@ -1,4 +1,5 @@
 import datetime
+import json
 import re
 import subprocess
 
@@ -26,7 +27,7 @@ f.write('')
 f.close()
 
 # 保護対象のURL
-url = "https://twitter.com/"
+url = "http://localhost:8080/"
 
 @app.route('/<regex(".*"):path>', methods=["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"])
 def post(path):
@@ -45,9 +46,9 @@ def post(path):
         return render_template('waffle.html')
 
     try :
-        proc = subprocess.run(["curl", "-X", request.method, "-i", url+path, "-H", "Cookie: " + cookie, "-H", "Content-Type:" + request.headers.getlist("Content-Type")[0] , "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.run(["curl", "-X", request.method, "-i", "-A", request.user_agent.string, url+path, "-H", "Cookie: " + cookie, "-H", "Content-Type:" + request.headers.getlist("Content-Type")[0] , "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except:
-        proc = subprocess.run(["curl", "-X", request.method, "-i", url+path, "-H", "Cookie: " + cookie, "-H", "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.run(["curl", "-X", request.method, "-i", "-A", request.user_agent.string, url+path, "-H", "Cookie: " + cookie, "-H", "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     # HTTPリクエストをヘッダとボディで分割
     splited_res = proc.stdout.split("\n\n".encode("utf-8"),1)
@@ -61,18 +62,18 @@ def post(path):
 
     return res
 
-def waf(path, *body):
+def waf(path, body):
     for val in blacklist:
         m = re.match(val, path, re.IGNORECASE)
-        if m == None and body != ():
+        if m == None and body != "":
             m = re.match(val, str(body), re.IGNORECASE)
             
         if m != None:
             with open('log/block.txt', mode='a') as f:
-                f.write("[" + str(datetime.datetime.now()) + "] " + path + " " + str(body) +"\n")
+                f.write(str({"date": str(datetime.datetime.now()), "path": path, "body": body}) + "\n")
             return True
     with open('log/through.txt', mode='a') as f:
-        f.write("[" + str(datetime.datetime.now()) + "] " + path + " " + str(body) + "\n")
+        f.write(str({"date": str(datetime.datetime.now()), "path": path, "body": body}) + "\n")
     return False
 
 app.run()
