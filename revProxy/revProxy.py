@@ -33,7 +33,7 @@ def post(path):
     if query != b'' :
         path += "?" + query.decode()
 
-    if waf(path, request.get_data().decode()):
+    if waf(request.remote_addr, path, request.get_data().decode()):
         return render_template('waffle.html')
 
     try :
@@ -43,7 +43,7 @@ def post(path):
 
     return Response(proc.stdout)
 
-def waf(path, body):
+def waf(addr, path, body):
     for val in blacklist:
         m = re.match(val, path, re.IGNORECASE)
         if m == None and body != "":
@@ -51,10 +51,10 @@ def waf(path, body):
             
         if m != None:
             with open('log/block.txt', mode='a') as f:
-                f.write(str({"date": str(datetime.datetime.now()), "path": path, "body": body}) + "\n")
+                f.write(str({"date": str(datetime.datetime.now()), "ip": addr, "path": path, "body": body}) + "\n")
             return True
     with open('log/through.txt', mode='a') as f:
-        f.write(str({"date": str(datetime.datetime.now()), "path": path, "body": body}) + "\n")
+        f.write(str({"date": str(datetime.datetime.now()), "ip": addr, "path": path, "body": body}) + "\n")
     return False
 
-app.run()
+app.run(host='0.0.0.0')
