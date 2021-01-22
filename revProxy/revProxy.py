@@ -57,4 +57,4 @@ def waf(addr, path, body):
         f.write(str({"date": str(datetime.datetime.now()), "ip": addr, "path": path, "body": body}) + "\n")
     return False
 
-app.run()
+app.run(host='0.0.0.0')
