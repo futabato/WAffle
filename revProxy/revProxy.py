@@ -43,7 +43,7 @@ def post(path):
         cookie += i + "=" + v +";"
 
     # WAF
-    if waf(path, request.get_data().decode(), cookie):
+    if waf(request.remote_addr, path, request.get_data().decode(), cookie):
         return render_template('waffle.html')
 
     try :
@@ -66,7 +66,7 @@ def post(path):
 
     return res
 
-def waf(path, body, cookie):
+def waf(addr, path, body, cookie):
     msg = ""
     for val in blacklist:
         m = re.match(val, path, re.IGNORECASE)
@@ -75,7 +75,7 @@ def waf(path, body, cookie):
         if m == None and cookie != "":
             m = re.match(val, str(cookie), re.IGNORECASE)
             
-        msg = str({"date": str(datetime.datetime.now()), "path": str(escape(path)), "body": str(escape(body)), "cookie": str(escape(cookie))}) + "\n"
+        msg = str({"date": str(datetime.datetime.now()), "ip": addr,"path": str(escape(path)), "body": str(escape(body)), "cookie": str(escape(cookie))}) + "\n"
         if m != None:
             with open('log/block.txt', mode='a') as f:
                 f.write(msg)
@@ -84,4 +84,4 @@ def waf(path, body, cookie):
         f.write(msg)
     return False
 
-app.run()
+app.run("0.0.0.0")
