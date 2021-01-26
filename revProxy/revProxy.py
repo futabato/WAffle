@@ -16,7 +16,7 @@ class RegexConverter(BaseConverter):
 
 app.url_map.converters['regex'] = RegexConverter
 
-with open("blacklist.txt") as f:
+with open("denylist.txt") as f:
     blacklist = [s.strip() for s in f.readlines()]
 
 # 2つのログファイルを初期化
