@@ -118,15 +118,22 @@ def prediction(url):
     # セッションのクリア(必要なのかは不明ではある)
     K.clear_session()
     model = load_model('../model/model.h5')
+
     input_url = preprocess(url)
     result = model.predict(input_url)
     confidence_score = result[0][0]
-    print('url: ', url)
-    print('confidence-score: ', confidence_score)
-    # ここのしきい値は適切に判断する必要がある(0.9は高いけどPrecisionを高くしたくない)
-    if confidence_score <= 0.9:
+    
+    #print('url: ', url)
+    #print('confidence-score: ', confidence_score)
+    msg = str({"url": url, "confidence_score": str(confidence_score),}) + "\n"
+    # ここのしきい値は適切に判断する必要がある(0.8は高いけどPrecisionを高くしたくない)
+    if confidence_score <= 0.8:
+        with open('log/through.txt', mode='a') as f:
+            f.write(msg)
         return False
     else:
+        with open('log/block.txt', mode='a') as f:
+            f.write(msg)
         return True
 
 app.run("0.0.0.0")
