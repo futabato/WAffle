@@ -2,10 +2,12 @@ import datetime
 import json
 import re
 import subprocess
+import urllib.parse
 
 from flask import (Flask, Response, escape, make_response, render_template,
                    request)
 from werkzeug.routing import BaseConverter
+
 
 app = Flask(__name__)
 
@@ -26,6 +28,9 @@ f.close()
 f = open('log/through.txt', 'w')
 f.write('')
 f.close()
+
+# modelのロード
+model = load_model()
 
 # 保護対象のURL
 url = "http://localhost:8080/"
@@ -96,11 +101,22 @@ def signature(addr, path, body, cookie):
 
 # 前処理
 def preprocess(url):
-    return encoded_url
+    url = [s.lower() for s in url]
+    # url decode
+    URL_decoded_url = urllib.parse.unquote(url)
+    # unicode encode
+    UNICODE_encoded_url = [ord(x) for x in str(URL_decoded_url).strip()]
+    UNICODE_encoded_url = UNICODE_encoded_url[:1000]
+    # zero padding
+    if len(UNICODE_encoded_url) <= 1000:
+        UNICODE_encoded_url += ([0] * (max_length - UNICODE_encoded_url))
+    # convert to numpy array
+    input_url = np.array(list(UNICODE_encoded_url))
+    return input_url
 
 # Character-level CNN を使って推論処理
-def prediction(encoded_url):
-    model = load_model(.h5)
+def prediction(url, model):
+    
     if confidence_score <= 0.8:
         return False
     else:
