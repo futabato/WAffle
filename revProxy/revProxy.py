@@ -7,6 +7,7 @@ import urllib.parse
 from flask import (Flask, Response, escape, make_response, render_template,
                    request)
 from werkzeug.routing import BaseConverter
+import numpy as np
 from keras.models import load_model
 from keras import backend as K
 
@@ -30,16 +31,11 @@ f = open('log/through.txt', 'w')
 f.write('')
 f.close()
 
-# Kerasのセッションのクリア(必要かどうかは不明)
-# modelのロード
-K.clear_session()
-model = load_model('../model/model.h5')
-
 # 保護対象のURL
 url = "http://localhost:8080/"
 
 @app.route('/<regex(".*"):path>', methods=["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"])
-def post(path, model):
+def post(path):
     # URLクエリを抽出
     query = request.query_string
     if query != b'' :
@@ -60,7 +56,7 @@ def post(path, model):
     """
     if signature(request.remote_addr, path, request.get_data().decode(), cookie):
         return render_template('waffle.html')
-    elif prediction(url + path, model):
+    elif prediction(url + path):
         return render_template('waffle.html')
 
     try :
@@ -69,7 +65,7 @@ def post(path, model):
         proc = subprocess.run(["curl", "-X", request.method, "-i", "-A", request.user_agent.string, url+path, "-H", "Cookie: " + cookie, "-H", "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     # HTTPリクエストをヘッダとボディで分割
-    splited_res = proc.stdout.split("\r\n\r\n".encode("utf-8"),1)
+    splited_res = proc.stdout.split("\r\n\r\n".encode("utf-8"), 1)
     if len(splited_res) == 1:
         res = make_response("")
     else :
@@ -104,26 +100,31 @@ def signature(addr, path, body, cookie):
 
 # 前処理
 def preprocess(url):
-    url = [s.lower() for s in url]
     # url decode
     URL_decoded_url = urllib.parse.unquote(url)
+    url = [s.lower() for s in url]
     # unicode encode
     UNICODE_encoded_url = [ord(x) for x in str(URL_decoded_url).strip()]
     UNICODE_encoded_url = UNICODE_encoded_url[:1000]
     # zero padding
     if len(UNICODE_encoded_url) <= 1000:
-        UNICODE_encoded_url += ([0] * (max_length - UNICODE_encoded_url))
+        UNICODE_encoded_url += ([0] * (1000 - len(UNICODE_encoded_url)))
     # convert to numpy array
-    input_url = np.array(list(UNICODE_encoded_url))
+    input_url = np.array([UNICODE_encoded_url])
     return input_url
 
 # 機械学習を使った推論処理
-def prediction(url, model):
+def prediction(url):    
+    # セッションのクリア(必要なのかは不明ではある)
+    K.clear_session()
+    model = load_model('../model/model.h5')
     input_url = preprocess(url)
     result = model.predict(input_url)
     confidence_score = result[0][0]
-    # ここのしきい値は適切に判断する必要がある(たぶん0.8は高いけどPrecisionを高くしたくない)
-    if confidence_score <= 0.8:
+    print('url: ', url)
+    print('confidence-score: ', confidence_score)
+    # ここのしきい値は適切に判断する必要がある(0.9は高いけどPrecisionを高くしたくない)
+    if confidence_score <= 0.9:
         return False
     else:
         return True
