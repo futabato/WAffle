@@ -3,11 +3,13 @@ import json
 import re
 import subprocess
 import urllib.parse
+import os
 
 from flask import (Flask, Response, escape, make_response, render_template,
                    request)
 from werkzeug.routing import BaseConverter
-
+from keras.models import load_model
+from keras import backend as K
 
 app = Flask(__name__)
 
@@ -29,13 +31,15 @@ f = open('log/through.txt', 'w')
 f.write('')
 f.close()
 
+# Kerasのセッションのクリア(必要かどうかは不明)
 # modelのロード
-model = load_model()
+K.clear_session()
+model = load_model('../model/model.h5')
 
 # 保護対象のURL
 url = "http://localhost:8080/"
 
-@app.route('/<regex(".*"):path>', methods=["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"])
+@app.route('/<regex(".*"):path>', methods=["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"], model)
 def post(path):
     # URLクエリを抽出
     query = request.query_string
@@ -57,7 +61,7 @@ def post(path):
     """
     if signature(request.remote_addr, path, request.get_data().decode(), cookie):
         return render_template('waffle.html')
-    elif prediction(encoded_url):
+    elif prediction(url + path, model):
         return render_template('waffle.html')
 
     try :
@@ -114,9 +118,12 @@ def preprocess(url):
     input_url = np.array(list(UNICODE_encoded_url))
     return input_url
 
-# Character-level CNN を使って推論処理
+# 機械学習を使った推論処理
 def prediction(url, model):
-    
+    input_url = preprocess(url)
+    result = model.predict(input_url)
+    confidence_score = result[0][0]
+    # ここのしきい値は適切に判断する必要がある(たぶん0.8は高いけどPrecisionを高くしたくない)
     if confidence_score <= 0.8:
         return False
     else:
