@@ -102,7 +102,7 @@ def signature(addr, path, body, cookie):
 def preprocess(url):
     # url decode
     URL_decoded_url = urllib.parse.unquote(url)
-    url = [s.lower() for s in url]
+    URL_decoded_url = [s.lower() for s in URL_decoded_url]
     # unicode encode
     UNICODE_encoded_url = [ord(x) for x in str(URL_decoded_url).strip()]
     UNICODE_encoded_url = UNICODE_encoded_url[:1000]
