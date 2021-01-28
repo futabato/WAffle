@@ -3,7 +3,6 @@ import json
 import re
 import subprocess
 import urllib.parse
-import os
 
 from flask import (Flask, Response, escape, make_response, render_template,
                    request)
@@ -39,8 +38,8 @@ model = load_model('../model/model.h5')
 # 保護対象のURL
 url = "http://localhost:8080/"
 
-@app.route('/<regex(".*"):path>', methods=["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"], model)
-def post(path):
+@app.route('/<regex(".*"):path>', methods=["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"])
+def post(path, model):
     # URLクエリを抽出
     query = request.query_string
     if query != b'' :
