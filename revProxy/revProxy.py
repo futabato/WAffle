@@ -43,7 +43,16 @@ def post(path):
         cookie += i + "=" + v +";"
 
     # WAF
-    if waf(request.remote_addr, path, request.get_data().decode(), cookie):
+    """イメージ
+    def post():
+        if signature():
+            return render_template('waffle.html')
+        elif predict():
+            return render_template('waffle.html')
+    """
+    if signature(request.remote_addr, path, request.get_data().decode(), cookie):
+        return render_template('waffle.html')
+    elif prediction(encoded_url):
         return render_template('waffle.html')
 
     try :
@@ -66,7 +75,8 @@ def post(path):
 
     return res
 
-def waf(addr, path, body, cookie):
+# 定義済みのシグネチャを参照したパターンマッチング
+def signature(addr, path, body, cookie):
     msg = ""
     for val in blacklist:
         m = re.match(val, path, re.IGNORECASE)
@@ -83,5 +93,17 @@ def waf(addr, path, body, cookie):
     with open('log/through.txt', mode='a') as f:
         f.write(msg)
     return False
+
+# 前処理
+def preprocess(url):
+    return encoded_url
+
+# Character-level CNN を使って推論処理
+def prediction(encoded_url):
+    model = load_model(.h5)
+    if confidence_score <= 0.8:
+        return False
+    else:
+        return True
 
 app.run("0.0.0.0")
