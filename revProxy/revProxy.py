@@ -2,6 +2,7 @@ import datetime
 import json
 import re
 import subprocess
+from typing import Match
 import urllib.parse
 
 from flask import (Flask, Response, escape, make_response, render_template,
@@ -54,10 +55,19 @@ def post(path):
         elif predict():
             return render_template('waffle.html')
     """
-    if signature(request.remote_addr, path, request.get_data().decode(), cookie):
+
+    msg = str({"date": str(datetime.datetime.now()), "ip": request.remote_addr,"path": str(escape(path)), "body": str(escape((request.get_data()).decode('utf-8'))), "cookie": str(escape(cookie))}) + "\n"
+
+    if not signature(path, request.get_data().decode(), cookie):
+        with open('log/block.txt', 'a') as f:
+            f.write(msg)
         return render_template('waffle.html')
-    elif prediction(url + path):
-        return render_template('waffle.html')
+    #elif prediction(url + path):
+    #    with open('log/block.txt', 'a') as f:
+    #        f.write(msg)
+    #    return render_template('waffle.html')
+    with open('log/through.txt', 'a') as f:
+        f.write(msg)
 
     try :
         proc = subprocess.run(["curl", "-X", request.method, "-i", "-A", request.user_agent.string, url+path, "-H", "Cookie: " + cookie, "-H", "Content-Type:" + request.headers.getlist("Content-Type")[0] , "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -80,23 +90,17 @@ def post(path):
     return res
 
 # 定義済みのシグネチャを参照したパターンマッチング
-def signature(addr, path, body, cookie):
-    msg = ""
+def signature(path, body, cookie):
+    m = Match[str]
     for val in blacklist:
         m = re.match(val, path, re.IGNORECASE)
         if m == None and body != "":
             m = re.match(val, str(body), re.IGNORECASE)
         if m == None and cookie != "":
             m = re.match(val, str(cookie), re.IGNORECASE)
-            
-        msg = str({"date": str(datetime.datetime.now()), "ip": addr,"path": str(escape(path)), "body": str(escape(body)), "cookie": str(escape(cookie))}) + "\n"
-        if m != None:
-            with open('log/block.txt', mode='a') as f:
-                f.write(msg)
-            return True
-    with open('log/through.txt', mode='a') as f:
-        f.write(msg)
-    return False
+        if m != None :
+            return False
+    return True
 
 # 前処理
 def preprocess(url):
@@ -125,15 +129,8 @@ def prediction(url):
     
     #print('url: ', url)
     #print('confidence-score: ', confidence_score)
-    msg = str({"url": url, "confidence_score": str(confidence_score),}) + "\n"
+    # msg = str({"url": url, "confidence_score": str(confidence_score),}) + "\n"
     # ここのしきい値は適切に判断する必要がある(0.8は高いけどPrecisionを高くしたくない)
-    if confidence_score <= 0.8:
-        with open('log/through.txt', mode='a') as f:
-            f.write(msg)
-        return False
-    else:
-        with open('log/block.txt', mode='a') as f:
-            f.write(msg)
-        return True
+    return confidence_score > 0.8
 
 app.run("0.0.0.0")
