@@ -22,7 +22,7 @@ class RegexConverter(BaseConverter):
 app.url_map.converters['regex'] = RegexConverter
 
 with open("denylist.txt") as f:
-    blacklist = [s.strip() for s in f.readlines()]
+    denylist = [s.strip() for s in f.readlines()]
 
 # 2つのログファイルを初期化
 f = open('log/block.txt', 'w')
@@ -97,7 +97,7 @@ def waf(url, path, body, cookie):
 
 # 定義済みのシグネチャを参照したパターンマッチング
 def signature(path, body, cookie):
-    for val in blacklist:
+    for val in denylist:
         m = re.match(val, path, re.IGNORECASE)
         if m == None and body != "":
             m = re.match(val, str(body), re.IGNORECASE)
