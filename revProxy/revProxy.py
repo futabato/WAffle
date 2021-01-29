@@ -22,7 +22,7 @@ class RegexConverter(BaseConverter):
 app.url_map.converters['regex'] = RegexConverter
 
 with open("denylist.txt") as f:
-    blacklist = [s.strip() for s in f.readlines()]
+    denylist = [s.strip() for s in f.readlines()]
 
 # 2つのログファイルを初期化
 f = open('log/block.txt', 'w')
@@ -49,7 +49,7 @@ def post(path):
 
     # WAF
     """イメージ
-    def post():
+    def waf():
         if signature():
             return render_template('waffle.html')
         elif predict():
@@ -89,6 +89,7 @@ def post(path):
 
 def waf(url, path, body, cookie):
     if not signature(path, body, cookie):
+        # パターンマッチングで引っかかった場合100%異常とする
         return 1
     confidence_score = prediction(url + path)
     # ここのしきい値は適切に判断する必要がある(0.8は高いけどPrecisionを高くしたくない)
@@ -96,7 +97,7 @@ def waf(url, path, body, cookie):
 
 # 定義済みのシグネチャを参照したパターンマッチング
 def signature(path, body, cookie):
-    for val in blacklist:
+    for val in denylist:
         m = re.match(val, path, re.IGNORECASE)
         if m == None and body != "":
             m = re.match(val, str(body), re.IGNORECASE)
@@ -133,7 +134,7 @@ def prediction(url):
     
     #print('url: ', url)
     #print('confidence-score: ', confidence_score)
-    # msg = str({"url": url, "confidence_score": str(confidence_score),}) + "\n"
+    # msg = str({"url": url, "confidence_score": str(confidence_score)}) + "\n"
     return confidence_score
 
 app.run("0.0.0.0")
