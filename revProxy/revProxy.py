@@ -1,8 +1,8 @@
 import datetime
 import json
+from os import write
 import re
 import subprocess
-from typing import Match
 import urllib.parse
 
 from flask import (Flask, Response, escape, make_response, render_template,
@@ -56,18 +56,16 @@ def post(path):
             return render_template('waffle.html')
     """
 
-    msg = str({"date": str(datetime.datetime.now()), "ip": request.remote_addr,"path": str(escape(path)), "body": str(escape((request.get_data()).decode('utf-8'))), "cookie": str(escape(cookie))}) + "\n"
 
-    if not signature(path, request.get_data().decode(), cookie):
+    confidence_score = waf(url, path, str(escape((request.get_data()).decode('utf-8'))), str(escape(cookie)))
+    msg = str({"date": str(datetime.datetime.now()), "ip": request.remote_addr,"path": str(escape(path)), "body": str(escape((request.get_data()).decode('utf-8'))), "cookie": str(escape(cookie)), "confidence_score":confidence_score}) + "\n"
+    if confidence_score > 0.8:
         with open('log/block.txt', 'a') as f:
             f.write(msg)
         return render_template('waffle.html')
-    #elif prediction(url + path):
-    #    with open('log/block.txt', 'a') as f:
-    #        f.write(msg)
-    #    return render_template('waffle.html')
-    with open('log/through.txt', 'a') as f:
-        f.write(msg)
+    else :
+        with open('log/through.txt', 'a') as f:
+            f.write(msg)
 
     try :
         proc = subprocess.run(["curl", "-X", request.method, "-i", "-A", request.user_agent.string, url+path, "-H", "Cookie: " + cookie, "-H", "Content-Type:" + request.headers.getlist("Content-Type")[0] , "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -89,9 +87,15 @@ def post(path):
 
     return res
 
+def waf(url, path, body, cookie):
+    if not signature(path, body, cookie):
+        return 1
+    confidence_score = prediction(url + path)
+    # ここのしきい値は適切に判断する必要がある(0.8は高いけどPrecisionを高くしたくない)
+    return confidence_score
+
 # 定義済みのシグネチャを参照したパターンマッチング
 def signature(path, body, cookie):
-    m = Match[str]
     for val in blacklist:
         m = re.match(val, path, re.IGNORECASE)
         if m == None and body != "":
@@ -130,7 +134,6 @@ def prediction(url):
     #print('url: ', url)
     #print('confidence-score: ', confidence_score)
     # msg = str({"url": url, "confidence_score": str(confidence_score),}) + "\n"
-    # ここのしきい値は適切に判断する必要がある(0.8は高いけどPrecisionを高くしたくない)
-    return confidence_score > 0.8
+    return confidence_score
 
 app.run("0.0.0.0")
