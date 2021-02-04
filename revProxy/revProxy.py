@@ -1,11 +1,16 @@
 import datetime
 import json
+from os import write
 import re
 import subprocess
+import urllib.parse
 
 from flask import (Flask, Response, escape, make_response, render_template,
                    request)
 from werkzeug.routing import BaseConverter
+import numpy as np
+from keras.models import load_model
+from keras import backend as K
 
 app = Flask(__name__)
 
@@ -17,7 +22,7 @@ class RegexConverter(BaseConverter):
 app.url_map.converters['regex'] = RegexConverter
 
 with open("denylist.txt") as f:
-    blacklist = [s.strip() for s in f.readlines()]
+    denylist = [s.strip() for s in f.readlines()]
 
 # 2つのログファイルを初期化
 f = open('log/block.txt', 'w')
@@ -42,9 +47,16 @@ def post(path):
     for i ,v in request.cookies.items():
         cookie += i + "=" + v +";"
 
-    # WAF
-    if waf(request.remote_addr, path, request.get_data().decode(), cookie):
+    # パターンマッチと機械学習で悪意ある通信を遮断
+    is_abnormal = waf(url, path, str(escape((request.get_data()).decode('utf-8'))), str(escape(cookie)))
+    msg = str({"date": str(datetime.datetime.now()), "ip": request.remote_addr,"path": str(escape(path)), "body": str(escape((request.get_data()).decode('utf-8'))), "cookie": str(escape(cookie)), "is_abnormal":is_abnormal}) + "\n"
+    if is_abnormal > 0.8:
+        with open('log/block.txt', 'a') as f:
+            f.write(msg)
         return render_template('waffle.html')
+    else :
+        with open('log/through.txt', 'a') as f:
+            f.write(msg)
 
     try :
         proc = subprocess.run(["curl", "-X", request.method, "-i", "-A", request.user_agent.string, url+path, "-H", "Cookie: " + cookie, "-H", "Content-Type:" + request.headers.getlist("Content-Type")[0] , "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -52,7 +64,7 @@ def post(path):
         proc = subprocess.run(["curl", "-X", request.method, "-i", "-A", request.user_agent.string, url+path, "-H", "Cookie: " + cookie, "-H", "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     # HTTPリクエストをヘッダとボディで分割
-    splited_res = proc.stdout.split("\r\n\r\n".encode("utf-8"),1)
+    splited_res = proc.stdout.split("\r\n\r\n".encode("utf-8"), 1)
     if len(splited_res) == 1:
         res = make_response("")
     else :
@@ -66,22 +78,47 @@ def post(path):
 
     return res
 
-def waf(addr, path, body, cookie):
-    msg = ""
-    for val in blacklist:
+def waf(url, path, body, cookie):
+    if not signature(path, body, cookie):
+        # パターンマッチングで引っかかった場合100%異常とする
+        return 1
+    return prediction(url + path)
+
+# 定義済みのシグネチャを参照したパターンマッチング
+def signature(path, body, cookie):
+    for val in denylist:
         m = re.match(val, path, re.IGNORECASE)
         if m == None and body != "":
             m = re.match(val, str(body), re.IGNORECASE)
         if m == None and cookie != "":
             m = re.match(val, str(cookie), re.IGNORECASE)
-            
-        msg = str({"date": str(datetime.datetime.now()), "ip": addr,"path": str(escape(path)), "body": str(escape(body)), "cookie": str(escape(cookie))}) + "\n"
-        if m != None:
-            with open('log/block.txt', mode='a') as f:
-                f.write(msg)
-            return True
-    with open('log/through.txt', mode='a') as f:
-        f.write(msg)
-    return False
+        if m != None :
+            return False
+    return True
+
+# 前処理
+def preprocess(url):
+    # url decode
+    URL_decoded_url = urllib.parse.unquote(url)
+    URL_decoded_url = [s.lower() for s in URL_decoded_url]
+    # unicode encode
+    UNICODE_encoded_url = [ord(x) for x in str(URL_decoded_url).strip()]
+    UNICODE_encoded_url = UNICODE_encoded_url[:1000]
+    # zero padding
+    if len(UNICODE_encoded_url) <= 1000:
+        UNICODE_encoded_url += ([0] * (1000 - len(UNICODE_encoded_url)))
+    # convert to numpy array
+    input_url = np.array([UNICODE_encoded_url])
+    return input_url
+
+# 機械学習を使った推論処理
+def prediction(url):    
+    # セッションのクリア(必要なのかは不明ではある)
+    K.clear_session()
+    model = load_model('../model/model.h5')
+
+    input_url = preprocess(url)
+    result = model.predict(input_url)
+    return result[0][0]
 
 app.run("0.0.0.0")
