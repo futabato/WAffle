@@ -52,32 +52,30 @@ def post(path):
     for i ,v in request.cookies.items():
         cookie += i + "=" + v +";"
 
+    # リクエストデータの整理
+    date_data = datetime.datetime.now()
+    ip_data = request.remote_addr
+    path_data = escape(path)
+    body_data = escape((request.get_data()).decode('UTF-8'))
+    cookie_data = escape(cookie)
+
     # パターンマッチと機械学習で悪意ある通信を遮断
-    is_abnormal = waf(url, path, str(escape((request.get_data()).decode('utf-8'))), str(escape(cookie)))
-    msg_txt = str({"date": str(datetime.datetime.now()), "ip": request.remote_addr,"path": str(escape(path)), "body": str(escape((request.get_data()).decode('utf-8'))), "cookie": str(escape(cookie)), "is_abnormal":is_abnormal}) + "\n"
+    is_abnormal = waf(url, path, str(body_data), str(cookie_data))
+    msg_txt = str({"date": str(date_data), "ip": ip_data,"path": str(path_data), "body": str(body_data), "cookie": str(cookie_data), "is_abnormal": is_abnormal}) + "\n"
+
     if is_abnormal >= 1:
         with open('log/block.txt', 'a') as f:
             f.write(msg_txt)
-        with open('../analysis/block.csv', 'a',newline='') as block_csv:
+        with open('../analysis/block.csv', 'a', newline='') as block_csv:
             block_writer = csv.writer(block_csv)
-            date_csv = datetime.datetime.now()
-            ip_csv = str(request.remote_addr)
-            path_csv = escape(path)
-            body_csv = escape((request.get_data()).decode('UTF-8'))
-            cookie_csv = escape(cookie)
-            block_writer.writerow([date_csv,ip_csv,path_csv,body_csv,cookie_csv,is_abnormal])
+            block_writer.writerow([date_data,str(ip_data),path_data,body_data,cookie_data,is_abnormal])
         return render_template('waffle.html')
     else :
         with open('log/through.txt', 'a') as f:
             f.write(msg_txt)
-        with open('../analysis/through.csv', 'a',newline='') as through_csv:
+        with open('../analysis/through.csv', 'a', newline='') as through_csv:
             through_writer = csv.writer(through_csv)
-            date_csv = datetime.datetime.now()
-            ip_csv = str(request.remote_addr)
-            path_csv = escape(path)
-            body_csv = escape((request.get_data()).decode('UTF-8'))
-            cookie_csv = escape(cookie)
-            through_writer.writerow([date_csv,ip_csv,path_csv,body_csv,cookie_csv,is_abnormal])
+            through_writer.writerow([date_data,str(ip_data),path_data,body_data,cookie_data,is_abnormal])
     try :
         proc = subprocess.run(["curl", "-X", request.method, "-i", "-A", request.user_agent.string, url+path, "-H", "Cookie: " + cookie, "-H", "Content-Type:" + request.headers.getlist("Content-Type")[0] , "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except:
