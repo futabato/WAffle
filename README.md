@@ -28,6 +28,7 @@ a Web Application Firewall using Signature and Character-level CNN
 
 ### model
 
+[Character-level CNN](https://arxiv.org/abs/1509.01626)という手法を使っています。  
 [Web Application Firewall using Character-level Convolutional Neural Network](http://iyatomi-lab.info/sites/default/files/user/CSPA2018%20Proceedings_ito.pdf)という論文を参考に、Kerasで実装しました。  
 
 ### analysis
