@@ -47,19 +47,10 @@ def post(path):
     for i ,v in request.cookies.items():
         cookie += i + "=" + v +";"
 
-    # WAF
-    """イメージ
-    def waf():
-        if signature():
-            return render_template('waffle.html')
-        elif predict():
-            return render_template('waffle.html')
-    """
-
-
-    confidence_score = waf(url, path, str(escape((request.get_data()).decode('utf-8'))), str(escape(cookie)))
-    msg = str({"date": str(datetime.datetime.now()), "ip": request.remote_addr,"path": str(escape(path)), "body": str(escape((request.get_data()).decode('utf-8'))), "cookie": str(escape(cookie)), "confidence_score":confidence_score}) + "\n"
-    if confidence_score > 0.8:
+    # パターンマッチと機械学習で悪意ある通信を遮断
+    is_abnormal = waf(url, path, str(escape((request.get_data()).decode('utf-8'))), str(escape(cookie)))
+    msg = str({"date": str(datetime.datetime.now()), "ip": request.remote_addr,"path": str(escape(path)), "body": str(escape((request.get_data()).decode('utf-8'))), "cookie": str(escape(cookie)), "is_abnormal":is_abnormal}) + "\n"
+    if is_abnormal > 0.8:
         with open('log/block.txt', 'a') as f:
             f.write(msg)
         return render_template('waffle.html')
@@ -91,9 +82,7 @@ def waf(url, path, body, cookie):
     if not signature(path, body, cookie):
         # パターンマッチングで引っかかった場合100%異常とする
         return 1
-    confidence_score = prediction(url + path)
-    # ここのしきい値は適切に判断する必要がある(0.8は高いけどPrecisionを高くしたくない)
-    return confidence_score
+    return prediction(url + path)
 
 # 定義済みのシグネチャを参照したパターンマッチング
 def signature(path, body, cookie):
@@ -130,11 +119,6 @@ def prediction(url):
 
     input_url = preprocess(url)
     result = model.predict(input_url)
-    confidence_score = result[0][0]
-    
-    #print('url: ', url)
-    #print('confidence-score: ', confidence_score)
-    # msg = str({"url": url, "confidence_score": str(confidence_score)}) + "\n"
-    return confidence_score
+    return result[0][0]
 
 app.run("0.0.0.0")
