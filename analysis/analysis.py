@@ -4,7 +4,7 @@ import pandas as pd
 st.title('テストデータの分析')
 
 
-df = pd.read_csv('../evaluation/evaluation.csv')
+df = pd.read_csv('../model/evaluation/evaluation.csv')
 
 st.write(df)
 
