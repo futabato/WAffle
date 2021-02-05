@@ -5,17 +5,24 @@
     <meta charset="UTF-8">
     <title>logs</title>
     <style>
-        ul {
-            padding: 50px;
-            width: 500px;
-            word-wrap: break-word;
+        body {
+            margin: 0;
+            padding: 0;
         }
-        
+
+        dl {
+            margin: 0;
+            padding: 1%;
+            width: 48%;
+            overflow-x: scroll;
+            white-space: nowrap;
+        }
+
         #through {
             float: left;
             background: #98fb98;
         }
-        
+
         #block {
             float: left;
             background: #fa8072;
@@ -24,18 +31,39 @@
 </head>
 
 <body>
-    <ul id=through>
+    <dl id="through">
         <p>through log</p>
-        <hr> {% for i in through_req %}
-        <li>{{ i }}</li>
-        {% endfor %}
-    </ul>
-    <ul id=block>
+        <hr>
+        <div id="tlog"></div>
+    </dl>
+    <dl id="block">
         <p>block log</p>
-        <hr> {% for i in block_req %}
-        <li>{{ i }}</li>
-        {% endfor %}
-    </ul>
+        <hr>
+        <div id="blog"></div>
+    </dl>
+    <script>
+        through = [{{ through_req | safe }}];
+        tlog = document.getElementById("tlog");
+        for (i = 0; i < through.length; i++) {
+            msg = "<dd>"
+            for (const [key, value] of Object.entries(through[i])) {
+                msg += (`[${key}]="${value}", `);
+            }
+            msg = msg.slice(0, msg.length-2)
+            tlog.innerHTML += msg + "</dd>"
+        }
+        block = [{{ block_req | safe }}];
+        blog = document.getElementById("blog");
+        for (i = 0; i < block.length; i++) {
+            msg = "<dd>"
+            for (const [key, value] of Object.entries(block[i])) {
+                msg += (`[${key}]="${value}", `);
+            }
+            msg = msg.slice(0, msg.length-2)
+            blog.innerHTML += msg + "</dd>"
+        }
+
+    </script>
 </body>
 
 </html>
