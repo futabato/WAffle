@@ -63,7 +63,8 @@ def post(path):
     is_abnormal = waf(url, path, str(body_data), str(cookie_data))
     msg_txt = str({"date": str(date_data), "ip": ip_data,"path": str(path_data), "body": str(body_data), "cookie": str(cookie_data), "is_abnormal": is_abnormal}) + "\n"
 
-    if is_abnormal >= 1:
+    # (汎化性能皆無のため)推論処置を避けるために is_abnormal==1 にしています
+    if is_abnormal == 1:
         with open('log/block.txt', 'a') as f:
             f.write(msg_txt)
         with open('../analysis/block.csv', 'a', newline='') as block_csv:
