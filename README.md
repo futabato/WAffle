@@ -16,7 +16,7 @@ a Web Application Firewall using Signature and Character-level CNN
 ### revProxy
 
 `revProxy.py`がWAFの本体となっています。  
-`$ python revProxy.py`
+`$ python revProxy.py`  
 簡単なダッシュボードを用意しています。  
 `$ python dashboard.py`
 
