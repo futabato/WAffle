@@ -6,7 +6,8 @@ a Web Application Firewall using Signature and Character-level CNN
 
 正規表現によるパターンマッチングとCharacter-level CNNで防御するWeb Application FirewallをPythonで実装しました。  
 
-[HTTP DATASET CSIC 2010](https://www.isi.csic.es/dataset/)のテストデータ(6,107件)に対して、Accuracy: 86.4, Precision: 75.7, Recall: 99.3という精度が出ています。  
+[HTTP DATASET CSIC 2010](https://www.isi.csic.es/dataset/)をTraining : Validation : Test = 7.5 : 1.5 : 1.0に分割し、学習と検証を行いました。  
+Testデータ(6,107件)に対して、Accuracy: 86.4, Precision: 75.7, Recall: 99.3という精度が出ています。  
 
 使用したテストデータと、性能テストを行った後のcsvファイル、学習済みモデルはGoogle Driveからダウンロードできます。  
 - [test_data.csv](https://drive.google.com/file/d/1tAyz4NLxBurCJPr72Yoa-u6lB9B3jsrc/view?usp=sharing)
@@ -23,8 +24,8 @@ a Web Application Firewall using Signature and Character-level CNN
 ### vuln
 
 防御対象となる脆弱なWebアプリケーションをPHPで実装しています。  
-バックドアなども含まれるため、cloneしたらフォルダをWindows Defenderから除外するようにする必要があります。  
-`$ docker-compose up --build -d`
+バックドアなども含まれるため、cloneしたらフォルダをWindows Defenderから除外する必要があります。  
+`$ docker-compose up --build`
 
 ### model
 
