@@ -14,9 +14,9 @@ localhost:8080 に脆弱なあれこれが出現する
 - [x] POST body XSS
 - [x] XXE
 - [x] SQLi
-- [ ] Cookie
-- [x] OS Command
+- [x] Cookie SQLi
+- [x] OS Command Injection
 - [ ] CSRF
-- [x] Pass Travarsal
+- [x] Path Travarsal
 - [x] RFI
 - [x] Mail Header Injection
