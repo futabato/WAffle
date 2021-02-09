@@ -14,6 +14,9 @@ Testデータ(6,107件)に対して、Accuracy: 86.4, Precision: 75.7, Recall: 9
 - [evaluation.csv](https://drive.google.com/file/d/1PENhBPGiEq_S1qD-JJSLWblR9hBFxknA/view?usp=sharing)
 - [model.h5](https://drive.google.com/file/d/1vXMnACj1IAAuXcG-gWbuYEsoB9Kaqxn8/view?usp=sharing)  
 
+元のデータセットは以下のリンクからダウントードしました。  
+[CSIC 2010 HTTP Dataset in CSV Format (for Weka Analysis)](https://petescully.co.uk/research/csic-2010-http-dataset-in-csv-format-for-weka-analysis/)  
+
 ### revProxy
 
 `revProxy.py`がWAFの本体となっています。  
