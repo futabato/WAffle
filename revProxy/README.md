@@ -14,7 +14,7 @@ $ python3 revProxy.py
 `WAffle/revProxy/`配下で上記のコマンドを実行する。
 `localhost:5000`にアクセスし、`index`が表示されることを確認する。
 
-`localhost:5000/<script>alert(1)</script>` などにアクセスすると`WAffle`のページが表示される。  
+`localhost:5000/get.php?input=<script>alert(1)</script>` などにアクセスすると`WAffle`のページが表示される。  
 
 ## dashboard
 
