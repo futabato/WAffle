@@ -6,8 +6,7 @@ import subprocess
 import urllib.parse
 import csv
 
-from flask import (Flask, Response, escape, make_response, render_template,
-                   request)
+from flask import (Flask, Response, escape, make_response, render_template, request)
 from werkzeug.routing import BaseConverter
 import numpy as np
 from keras.models import load_model
@@ -25,17 +24,17 @@ app.url_map.converters['regex'] = RegexConverter
 with open("denylist.txt") as f:
     denylist = [s.strip() for s in f.readlines()]
 
-# 2つのログファイルを初期化
-with open('log/block.txt', 'w') as f:
-    f.write('')
-with open('log/through.txt', 'w') as f:
-    f.write('')
-with open('../analysis/block.csv', 'w',newline = '') as block_csv:
+# 4つのログファイルを初期化
+with open('log/block.txt', 'w') as block_txt:
+    block_txt.write('')
+with open('log/through.txt', 'w') as through_txt:
+    through_txt.write('')
+with open('../analysis/block.csv', 'w', newline='') as block_csv:
     block_writer = csv.writer(block_csv)
-    block_writer.writerow(['date','ip','path','body','cookie','is_abnormal'])
-with open('../analysis/through.csv', 'w',newline='') as through_csv:
+    block_writer.writerow(['date', 'ip', 'path', 'body', 'cookie', 'is_abnormal'])
+with open('../analysis/through.csv', 'w', newline='') as through_csv:
     through_writer = csv.writer(through_csv)
-    through_writer.writerow(['date','ip','path','body','cookie','is_abnormal'])
+    through_writer.writerow(['date', 'ip', 'path', 'body', 'cookie', 'is_abnormal'])
 
 # 保護対象のURL
 url = "http://localhost:8080/"
@@ -63,20 +62,20 @@ def post(path):
     is_abnormal = waf(url, path, str(body_data), str(cookie_data))
     msg_txt = str({"date": str(date_data), "ip": ip_data,"path": str(path_data), "body": str(body_data), "cookie": str(cookie_data), "is_abnormal": is_abnormal}) + "\n"
 
-    # (汎化性能皆無のため)推論処置を避けるために is_abnormal==1 にしています
+    # (汎化性能皆無のため)vuln利用時、推論処理を避けるために is_abnormal==1 にしています
     if is_abnormal == 1:
-        with open('log/block.txt', 'a') as f:
-            f.write(msg_txt)
+        with open('log/block.txt', 'a') as block_txt:
+            block_txt.write(msg_txt)
         with open('../analysis/block.csv', 'a', newline='') as block_csv:
             block_writer = csv.writer(block_csv)
-            block_writer.writerow([date_data,str(ip_data),path_data,body_data,cookie_data,is_abnormal])
+            block_writer.writerow([date_data, str(ip_data), path_data, body_data, cookie_data, is_abnormal])
         return render_template('waffle.html')
     else :
-        with open('log/through.txt', 'a') as f:
-            f.write(msg_txt)
+        with open('log/through.txt', 'a') as through_txt:
+            through_txt.write(msg_txt)
         with open('../analysis/through.csv', 'a', newline='') as through_csv:
             through_writer = csv.writer(through_csv)
-            through_writer.writerow([date_data,str(ip_data),path_data,body_data,cookie_data,is_abnormal])
+            through_writer.writerow([date_data, str(ip_data), path_data, body_data, cookie_data, is_abnormal])
     try :
         proc = subprocess.run(["curl", "-X", request.method, "-i", "-A", request.user_agent.string, url+path, "-H", "Cookie: " + cookie, "-H", "Content-Type:" + request.headers.getlist("Content-Type")[0] , "--data", request.get_data().decode()], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except:
@@ -101,7 +100,8 @@ def waf(url, path, body, cookie):
     if not signature(path, body, cookie):
         # パターンマッチングで引っかかった場合100%異常とする
         return 1
-    return prediction(url + path)
+    else:
+        return prediction(url + path)
 
 # 定義済みのシグネチャを参照したパターンマッチング
 def signature(path, body, cookie):
@@ -127,8 +127,8 @@ def preprocess(url):
     if len(UNICODE_encoded_url) <= 1000:
         UNICODE_encoded_url += ([0] * (1000 - len(UNICODE_encoded_url)))
     # convert to numpy array
-    input_url = np.array([UNICODE_encoded_url])
-    return input_url
+    model_input_url = np.array([UNICODE_encoded_url])
+    return model_input_url
 
 # 機械学習を使った推論処理
 def prediction(url):    
@@ -136,8 +136,8 @@ def prediction(url):
     K.clear_session()
     model = load_model('../model/model.h5')
 
-    input_url = preprocess(url)
-    result = model.predict(input_url)
+    model_input_url = preprocess(url)
+    result = model.predict(model_input_url)
     return result[0][0]
 
 app.run("0.0.0.0")
