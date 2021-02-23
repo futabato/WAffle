@@ -1,6 +1,6 @@
 # WAffle
 
-a Web Application Firewall using Signature and Character-level CNN
+a Web Application Firewall using Signature and Character-level CNN  
 
 ## 概要
 
@@ -14,8 +14,8 @@ Testデータ(6,107件)に対して、Accuracy: 86.4, Precision: 75.7, Recall: 9
 - [evaluation.csv](https://drive.google.com/file/d/1PENhBPGiEq_S1qD-JJSLWblR9hBFxknA/view?usp=sharing)
 - [model.h5](https://drive.google.com/file/d/1vXMnACj1IAAuXcG-gWbuYEsoB9Kaqxn8/view?usp=sharing)  
 
-元のデータセット(csv形式)は以下のリンクからダウンロードしました。  
-[CSIC 2010 HTTP Dataset in CSV Format (for Weka Analysis)](https://petescully.co.uk/research/csic-2010-http-dataset-in-csv-format-for-weka-analysis/)  
+元のデータセットをcsv形式に変換したものはkaggleにて公開されていたので、以下のリンクからダウンロードしました。  
+[CSIC 2010 Web Application Attacks | Kaggle](https://www.kaggle.com/ispangler/csic-2010-web-application-attacks)  
 
 ### revProxy
 
