@@ -17,10 +17,10 @@ Testデータ(6,107件)に対して、Accuracy: 86.4, Precision: 75.7, Recall: 9
 元のデータセットをcsv形式に変換したものはkaggleにて公開されていたので、以下のリンクからダウンロードしました。  
 [CSIC 2010 Web Application Attacks | Kaggle](https://www.kaggle.com/ispangler/csic-2010-web-application-attacks)  
 
-### revProxy
+### waf
 
-`revProxy.py`がWAFの本体となっています。  
-`$ python revProxy.py`  
+`waf.py`がWAFの本体となっています。  
+`$ python waf.py`  
 簡単なダッシュボードを用意しています。  
 `$ python dashboard.py`
 
