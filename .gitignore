@@ -1,5 +1,5 @@
 work/
 *.csv
 *.h5
-revProxy/log/through.txt
-revProxy/log/block.txt
+waf/log/through.txt
+waf/log/block.txt
