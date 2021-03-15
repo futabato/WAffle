@@ -1,4 +1,4 @@
-# waf
+## waf
 
 正規表現によるパターンマッチングとCharacter-level CNNで防御するWAF。  
 `denylist.txt`に正規表現を追加していけばより強くなる。  
